@@ -1,0 +1,408 @@
+select * from members;
+select * from sales;
+select * from menu;
+
+
+
+-- 1. What is the total amount each customer spent at the restaurant?
+      select customer_id ,sum(price) as totatl_price from menu m
+	  INNER join sales s on m.product_id = s.product_id 
+	  group by customer_id
+	  customer_id totatl_price
+	  A	76
+	  B	74
+      C	36
+-- 2. How many days has each customer visited the restaurant?
+      select m.customer_id , count(order_date) as visted_date_count from members m INNER JOIN 
+      sales s ON m.customer_id = s.customer_id
+      group by m.customer_id 
+	  customer_id visted_date_count
+	  A	6
+	  B	6
+-- 3. What was the first item from the menu purchased by each customer?
+		WITH first_item as(
+		select 
+		customer_id, 
+		min(order_date) as first_order_date 
+		from sales GROUP BY customer_id
+		) 
+		
+		select s.customer_id ,
+		s.product_id  
+		from sales s 
+		INNER JOIN menu m ON  s.product_id = m.product_id 
+		INNER JOIN first_item f ON s.customer_id = f.customer_id and s.order_date = f.first_order_date
+		customer_id product_id
+		A	1
+		A	2
+		B	2
+		C	3
+		C	3
+-- 4. What is the most purchased item on the menu and how many times was it purchased by all customers?
+	   Product_id 3 as max count values 
+       select s.product_id ,count(1) as count_value from
+	   sales s
+	   INNER JOIN 
+	   menu  m ON s.product_id = m.product_id
+	   group by s.product_id 
+	   order by count_value desc
+	   product_id count_value
+	   3	8
+	   2	4
+	   1	3
+-- 5. Which item was the most popular for each customer?
+		WITH most_popular AS 
+		      (
+		SELECT 
+			sales.customer_id, 
+			menu.product_name, 
+			COUNT(menu.product_id) AS order_count,
+			DENSE_RANK() OVER( PARTITION BY sales.customer_id ORDER BY COUNT(sales.customer_id) DESC) AS rank_value
+			FROM menu
+			JOIN sales ON menu.product_id = sales.product_id
+			GROUP BY sales.customer_id, menu.product_name
+			   )
+		SELECT 
+		customer_id, 
+		product_name, 
+		order_count
+		FROM most_popular 
+		WHERE rank_value = 1;
+		Product_name customer_id order_count
+        A	ramen	3
+		B	curry	2
+		B	sushi	2
+		B	ramen	2
+		C	ramen	3
+-- 6. Which item was purchased first by the customer after they became a member?
+		WITH joined_as_member AS
+				(
+		SELECT
+				members.customer_id, 
+				sales.product_id,
+				ROW_NUMBER() OVER(PARTITION BY members.customer_id ORDER BY sales.order_date) AS row_num_value
+				FROM members
+				JOIN sales ON members.customer_id = sales.customer_id AND sales.order_date > members.join_date
+				)		
+		SELECT 
+		customer_id, 
+		product_name 
+		FROM joined_as_member
+		JOIN menu ON joined_as_member.product_id = menu.product_id
+		WHERE row_num_value = 1
+		ORDER BY customer_id ASC;
+		customer_id product_name
+		A	ramen
+		B	sushi
+-- 7. Which item was purchased just before the customer became a member?
+
+		WITH purchased_before_member AS 
+			(
+		SELECT 
+			members.customer_id, 
+			sales.product_id,
+			ROW_NUMBER() OVER(
+			PARTITION BY members.customer_id
+			ORDER BY sales.order_date DESC) AS rank_value
+			FROM members
+			JOIN sales ON members.customer_id = sales.customer_id AND sales.order_date < members.join_date
+		)
+		
+		SELECT 
+		p_member.customer_id, 
+		menu.product_name 
+		FROM purchased_before_member AS p_member
+		JOIN menu
+		ON p_member.product_id = menu.product_id
+		WHERE rank_value = 1
+		ORDER BY p_member.customer_id ASC;
+		customer_id product_name
+		A	sushi
+		B	sushi
+-- 8. What is the total items and amount spent for each member before they became a member?
+
+		SELECT 
+		sales.customer_id, 
+		COUNT(sales.product_id) AS total_items, 
+		SUM(menu.price) AS total_sales
+		FROM sales JOIN members ON sales.customer_id = members.customer_id AND sales.order_date < members.join_date
+		JOIN menu ON sales.product_id = menu.product_id
+		GROUP BY sales.customer_id
+		ORDER BY sales.customer_id;
+		customer_id total_items total_sales
+		A	2	25
+		B	3	40
+-- 9.  If each $1 spent equates to 10 points and sushi has a 2x points multiplier - how many points would each customer have?
+		WITH points_table AS (
+		SELECT 
+			menu.product_id, 
+			CASE
+				WHEN product_id = 1 THEN price * 20
+				ELSE price * 10
+			END AS points
+			FROM menu
+		)
+		SELECT 
+		sales.customer_id, 
+		SUM(points_table.points) AS total_points
+		FROM sales
+		JOIN points_table
+		ON sales.product_id = points_table.product_id
+		GROUP BY sales.customer_id
+		ORDER BY sales.customer_id;
+		customer_id total_points
+		A	860
+		B	940
+		C	360
+-- 10. In the first week after a customer joins the program (including their join date) they earn 2x points on all items, not just sushi - how many points do customer A and B have at the end of January?
+
+
+
+SQL 
+1.Types of commands and their examples.
+   DDL (Data Definition Language)
+   CREATE DATABASE Test;
+   use test;
+   CREATE TABLE sample_table (
+	employee_id INT PRIMARY KEY,
+    first_name VARCHAR(50),
+    last_name VARCHAR(50),
+    department_id INT
+	)
+	ALTER TABLE sample_table ADD COLUMN email VARCHAR(100);
+	DROP TABLE sample_table;
+	DML :
+	INSERT INTO sample_table (employee_id, first_name, last_name, department_id)	VALUES (1, 'Arun', 'ch', 2906);
+	UPDATE sample_table SET department_id = 2929 WHERE employee_id = 1;
+	DELETE FROM sample_table WHERE employee_id = 1;
+	TRUNCATE TABLE sample_table;
+	DCL :
+	GRANT SELECT, INSERT ON sample_table TO user1;
+	REVOKE INSERT ON sample_table FROM user1;
+2.What is Normalization and denormalization?  
+	Normilization : Dividing the data from large table into small tables  and which allows 
+	ACID properties such as  Atomicity , consistency , Isolation , Durablity 
+	denormalization: By reducing the number of tables and potentially simplifying queries
+3.Explain 1NF, 2NF, 3NF.
+    1NF :  Ensures that each column in a table contains atomic (indivisible) values, meaning there are no repeating groups or arrays within a single field.
+	2NF :Requires that a table be in 1NF and that all non-key attributes are fully functionally dependent on the primary key.
+	3NF :Requires that a table be in 2NF and that there are no transitive dependencies
+4.Share use case where you had to do denormalization in database..
+  For example in the healthcare domain, denormalization can be employed to optimize querying and reporting processes, which consists of different normalized tables such as patient , medical , treatments etc...
+  This table could aggregate relevant information from multiple normalized tables, including patient demographics, medical records, treatments, and doctor details. By denormalizing this data into a single reporting table, you eliminate the need for complex joins and reduce query execution time.
+5.What is primary key and foreign key?
+   primary key:
+	A primary key is a unique identifier for each record (or row) in a table.
+	It uniquely identifies each record in the table, ensuring that there are no duplicate records.
+   foreign key:
+   A foreign key is a column or set of columns in a table that establishes a link or relationship between two tables.
+   It refers to the primary key of another table, thus creating a relationship between the two tables.
+6.what is alternate and candidate key?
+  Alternate : 
+			  An alternate key, also known as a secondary key, is a candidate key that is not chosen as the primary key.
+			  It is an alternative candidate key that can be used to uniquely identify records in the table if the primary key is not utilized
+  candidate Key :
+			A candidate key is a column or set of columns in a table that can uniquely identify each record (row) in the table.
+            Like the primary key, a candidate key must uniquely identify each record, and its values must be unique and non-null.
+7.What are window functions?:
+	Window functions, also known as analytic functions,that allow you to perform calculations across a set of rows related to the current row within a query result
+8.Explain Ranking Functions? GIven a small table , write the output.
+	That assign a rank to each row in a result set based on specified criteria. There are several ranking functions available in SQL, including ROW_NUMBER(), RANK(), and DENSE_RANK().
+	Example :
+	SELECT
+				members.customer_id, 
+				sales.product_id,
+				ROW_NUMBER() OVER(PARTITION BY members.customer_id ORDER BY sales.order_date) AS row_num_value
+				FROM members
+				JOIN sales ON members.customer_id = sales.customer_id AND sales.order_date > members.join_date
+				
+     
+9.Types of Joins? With example and usecase. All the number of records return and exact records.
+		Table A
+		id name
+		1 apple
+		1 apple
+		1 apple
+		1 apple
+		2 Banana
+		2 Banana
+		3 Guava
+		
+		--
+		table 2 
+		id color
+		1 Red
+		2 yellow
+		3 Green
+		
+		share output no of records and exact records for all joins 
+		
+		INNER JOIN 
+			select * as count_value from table_a a 
+			INNER JOIN table_b b ON a.id = b.id
+			Total : 8 records 
+			1	apple	1	Red
+			1	apple	1	Red
+			1	apple	1	Red
+			1	apple	1	Red
+			1	apple	1	Red
+			2	Banana	2	yellow
+			2	Banana	2	yellow
+			3	Guava	3	Green
+			
+		LEFT JOIN 
+			select *   from table_a a 
+			LEFT JOIN table_b b ON a.id = b.id 
+			1	apple	1	Red
+			1	apple	1	Red
+			1	apple	1	Red
+			1	apple	1	Red
+			1	apple	1	Red
+			2	Banana	2	yellow
+			2	Banana	2	yellow
+			3	Guava	3	Green
+		RIGHT JOIN 
+			select *   from table_a a 
+			RIGHT JOIN table_b b ON a.id = b.id 
+			1	apple	1	Red
+			1	apple	1	Red
+			1	apple	1	Red
+			1	apple	1	Red
+			1	apple	1	Red
+			2	Banana	2	yellow
+			2	Banana	2	yellow
+			3	Guava	3	Green
+		FULL OUTER JOIN 
+			select *   from table_a a 
+				LEFT  OUTER JOIN table_b b ON a.id = b.id
+			UNION
+			select *   from table_a a 
+				LEFT  OUTER JOIN table_b b ON a.id = b.id
+				1	apple	1	Red
+				2	Banana	2	yellow
+				3	Guava	3	Green
+			
+		CROSS JOIN :
+			select *  from table_a a 
+			,table_b b 
+			1	apple	3	Green
+			1	apple	2	yellow
+			1	apple	1	Red
+			1	apple	3	Green
+			1	apple	2	yellow
+			1	apple	1	Red
+			1	apple	3	Green
+			1	apple	2	yellow
+			1	apple	1	Red
+			1	apple	3	Green
+			1	apple	2	yellow
+			1	apple	1	Red
+			1	apple	3	Green
+			1	apple	2	yellow
+			1	apple	1	Red
+			2	Banana	3	Green
+			2	Banana	2	yellow
+			2	Banana	1	Red
+			2	Banana	3	Green
+			2	Banana	2	yellow
+			2	Banana	1	Red
+			3	Guava	3	Green
+			3	Guava	2	yellow
+			3	Guava	1	Red
+10.Use case when self join is required.
+   If we have employee tables and I  retrieve a list of employees along with the names of their managers. This is where a self join can be used.
+   SELECT
+    e.employee_name AS employee_name,
+    m.employee_name AS manager_name
+	FROM
+		employees e
+	JOIN
+		employees m ON e.manager_id = m.employee_id;
+		
+11.What is subquery?:
+	A subquery, also known as a nested query or inner query
+12.What is corelated subquery?:
+   A correlated subquery is a type of subquery in SQL that is nested within an outer query and dependent on the outer query for its execution
+13.What is CTE? :
+        CTE stands for Common Table Expression. Its a temporary named result set that you can reference within
+		CTEs are useful for improving readability, maintainability, and reusability of SQL queries, especially for complex queries that involve multiple subqueries or recursive operations.
+		
+14.What is derived table?:
+  Derived tables are used to simplify complex queries by breaking them into smaller, more manageable parts
+15.Find third highest employee based on salary?:
+		SELECT employee_id, employee_name, salary
+		FROM (
+			SELECT 
+				employee_id, 
+				employee_name, 
+				salary,
+				ROW_NUMBER() OVER (ORDER BY salary DESC) AS salary_rank
+			FROM employees
+		) AS ranked_employees
+		WHERE salary_rank = 3;
+16.Find third highest employee based on salary  per department?
+		WITH ranked_employees AS (
+			SELECT 
+				employee_id, 
+				employee_name, 
+				salary,
+				department_id,
+				ROW_NUMBER() OVER (PARTITION BY department_id ORDER BY salary DESC) AS salary_rank
+			FROM employees
+		)
+		SELECT employee_id, employee_name, salary, department_id
+		FROM ranked_employees
+		WHERE salary_rank = 3;
+17.How to find duplicate values in a single column?
+		SELECT employee_id, COUNT(*)
+		FROM employees
+		GROUP BY employee_id
+		HAVING COUNT(*) > 1;
+18.How to find duplicate values in a multiple column?
+		SELECT first_name, last_name, COUNT(*)
+		FROM employees
+		GROUP BY first_name, last_name
+		HAVING COUNT(*) > 1;
+19.What are ACID properties? give example for each property
+		ACID is an acronym that stands for atomicity, consistency, isolation, and durability.
+		
+		Lets continue with the banking example  where money is being transferred from one account to another. Lets examine each of the ACID properties in this example:
+		Atomicity: Money needs to both be removed from one account and added to the other, or the transaction will be aborted.
+		
+		Consistency: All updates to an account balance inside of a transaction must leave the account with a valid, non-negative balance, or the transaction should be aborted.
+		
+		Isolation: Consider two concurrent requests to transfer money from the same bank account. The final result of running the transfer requests concurrently should be the same as running the transfer requests sequentially.
+		
+		Durability: Consider a power failure immediately after a database has confirmed that money has been transferred from one bank account to another. The database should still hold the updated information even though there was an unexpected failure.
+20.Diff between union and union all
+    Union which drop duplicates and UNION ALL which allow duplicates 
+21.Diff between primary key and unique key:
+  A primary key uniquely identifies each record in a table and cannot contain NULL values, while a unique key ensures uniqueness of values in a column or combination of columns, but allows NULL values.
+22.Diff between truncate and delete:
+	TRUNCATE that quickly removes all rows from a table, and cannot be rolled back, while DELETE is a DML command that selectively removes rows from a table based on a condition, does not reset identity columns, and can be rolled back.
+23.Diff between having and where
+    Having clause can apply only after group by clause , Where clause we have apply before group by 
+24.SQL query execution order.
+    from --> JOIN --> WHERE --> GROUP BY --> Having --> select --> order by -- Limit 
+25.What are indexes? Types of Indexes and their differences.
+		Single-column indexes, as the name suggests, are created on a single column of a table.
+		Composite indexes, also known as concatenated indexes, are built on two or more columns of a table	
+		Unique indexes ensure the data contained in the indexed column or columns for each row in the table is unique
+		Bitmap indexes utilize bit arrays (bitmaps) and answer queries by performing bitwise operations on these bitmaps.
+		B-tree indexes are the most common type of index. They allow the database to find data by following a branching path, leading to the desired value. 
+		Hash indexes use a hash function to map index keys to locations in a hash table.
+		Partial indexes index only a portion of a table. They can be particularly useful when there are large tables and only a small subset of rows are frequently accessed
+	    Clustered indexes organize the rows in a table or a view in a specific order to match the index.
+		Non-clustered indexes, on the other hand, have a structure separate from the data rows
+		
+26.What is surrogate key? Give example where you used it and how.
+		A surrogate key is a unique identifier assigned to each row in a database table that has no intrinsic meaning or business relevance. Its typically an artificial or synthetic key generated by the database system, often as an auto-incrementing integer value.
+		CREATE TABLE employees (
+		employee_id INT PRIMARY KEY AUTO_INCREMENT,
+		first_name VARCHAR(50),
+		last_name VARCHAR(50),
+		email VARCHAR(100)
+	    );
+		INSERT INTO employees (first_name, last_name, email)
+		VALUES ('Arun', 'Kumar', 'arun@test.com');
+		

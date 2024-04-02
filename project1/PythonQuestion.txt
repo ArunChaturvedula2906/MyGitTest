@@ -1,0 +1,183 @@
+1.What is init keyword ?:
+   Is an method to initilaze an Objects in class 
+   
+   It stands for "initialize" and is automatically called when a new instance of a class is created. It's commonly known as the constructor method in object-oriented programming.
+   
+2.What is self keyword ?
+    It acts as a reference to the current instance of the class.
+	
+	self is a fundamental aspect of object-oriented programming in Python, facilitating instance-specific behavior and allowing objects to interact with their own data and methods within a class.
+   
+   
+3.What is lambda functon?
+  A function which we dont have def keyword and functional literals it will be use only time 
+  
+  Lambda functions are  one-line functions that you create on-the-fly. They're handy when you need a small function for a short period and don't want to clutter your code with a formal function definition.
+  
+  
+4.Difference between lambda and normal function?
+   lambda functions are more compact and suited for simple tasks, while normal functions offer more flexibility, readability, and reusability for complex tasks.
+   
+   Lamba Function: 
+   Lambda functions use the lambda keyword followed by a list of arguments, a colon, and a single expression. They are typically written on a single line and these  are anonymous, meaning they don't have a name. They are defined and used inline without assigning them to a variable or giving them a name.
+   
+   Normal Function :
+   Normal functions use the def keyword followed by the function name, a list of parameters enclosed in parentheses, a colon, and the function body, which may contain multiple statements. The function body is indented.Normal functions have a name by which they can be referenced and called elsewhere in the code.
+   
+5.What are generators? When to use ? share one example
+   Generators are  the functions that produce a sequence of results instead of returning a single value, Baisically it will use Yield(internally it will iterator) where entire data will store into single object (Lazy evaluation)
+   Example :
+   def fibonacci_generator():
+    a, b = 0, 1
+    while True:
+        yield a
+        a, b = b, a + b
+
+	# Using the generator to generate Fibonacci numbers
+	fibonacci = fibonacci_generator()
+	for _ in range(10):
+		print(next(fibonacci))  # Output: 0, 1, 1, 2, 3, 5, 8, 13, 21, 34
+		
+	Another examples 
+	Generators are used different scenario like when Lazy Evaluation like  When you need to produce values on-the-fly without precomputing all values in advance, generators are an efficient choice 
+	Pipeline Processing:
+	Generators can be chained together to create pipelines for data processing, where each generator in the chain produces the next value as needed.
+    Generators provide a memory-efficient way to generate sequences of values, especially when dealing with large datasets or infinite sequences. They're a powerful tool in Python for lazy evaluation and efficient processing of data.
+     
+6.Python is compiled or interpreted language ? what does it mean?
+  Both complier and interpreter , but primarly as Interpreter language where we can excecute line by line.
+  
+  When you run a Python script, the interpreter translates the source code into intermediate bytecode, which is then executed by the Python Virtual Machine (PVM).
+  This interpretation process happens at runtime, meaning that Python code can be executed without the need for a separate compilation step
+  Although Python is primarily interpreted, it also uses compilation in the background.
+  When you import a module or run a script, Python compiles the source code into bytecode (.py files) and saves them to disk. This bytecode can be executed by the Python interpreter more efficiently than parsing the source code every time.
+  
+7.What is the difference between list and tuples in Python?
+   List is mutable where as Tuples is an Immutable Which can't able to change once we assign the value 
+   
+   Immutable and mutable We need to understand in memory level :
+   If we assign a value in any list example list1 = [1,2,3,4,5] here list1 will have one address values internally  
+   and now if we want add the value with in the same list list1[4] = 5 , here we can able update existing list1 and address also remain same 
+   
+   Immutable: if we assign a value into the string internally it will store some address and now if we change the value with same varaiable then still it will be immuatable but it as different address value internally##
+
+
+8.What is the difference between list and set in Python?
+  list allow duplicate and where set doesn't allow .
+  
+  Ordering:
+	Lists: Lists are ordered collections, meaning the order of elements is preserved. You can access elements in a list by their indices, and the elements will be retrieved in the same order as they were inserted.
+	Sets: Sets are unordered collections, meaning the elements are not stored in any particular order. Set elements are unique, and there is no concept of indexing or order among elements.
+   Usage:
+	Lists: Lists are suitable for storing collections of items where order and duplicates matter. They're commonly used when you need to preserve the sequence of elements or when you want to allow duplicate values.
+	Sets: Sets are useful when you need to store unique elements and don't care about their order. They're commonly used for membership testing, removing duplicates from other collections, or performing set operations like union, intersection, and difference.
+9.When to use dictionary?
+   dictionary are Key value Pair.
+    They are commonly used when you need to associate unique keys with corresponding values and quickly retrieve values based on their keys.
+	
+	
+	In other Scenario main it is used in below Areas like.
+	Fast Lookup:Dictionaries provide fast lookup times for retrieving values based on keys.
+	Uniquely Identifying Items
+	Data Aggregation: Dictionaries are useful for aggregating data from multiple sources or representing complex relationships between entities. 
+	Caching: Dictionaries can be used for caching frequently accessed or computed values. By storing computed values as key-value pairs, you can quickly retrieve them when needed, avoiding redundant computations
+	JSON-Like Data
+	Mapping Relationships
+	Counting and Frequency Analysis: Dictionaries are handy for counting occurrences of items or performing frequency analysis. 
+10.What are decorators? When to use ? share one example:
+	Its  an  desgin pattern  it allows programmers to modify the behaviour of a function or class. Decorators allow us to wrap another function in order to extend the behaviour of the wrapped function, without permanently modifying it
+	Example :suitable design choice for implementing features in a pizza ordering system.
+	Pizza serves as the base component class representing a plain pizza.
+	PizzaDecorator is an abstract decorator class that inherits from Pizza.
+	Concrete toppings decorators (Cheese, Pepperoni, Mushroom) inherit from PizzaDecorator and add specific toppings to the pizza.
+11.What are Iterators?:
+    In simpler terms, iterators are like a cursor that moves through a collection, allowing you to retrieve each item in turn.
+	
+	
+	Iterators allow you to traverse through a sequence of elements, such as a list, tuple, or string, retrieving each item individually.
+    Iterators in Python follow a protocol. They must implement two special methods:
+	Lazy Evaluation: Iterators use lazy evaluation, meaning they generate elements only when requested. This can be beneficial for memory efficiency, especially when dealing with large datasets or infinite sequences.
+    Iterators are commonly used with looping constructs like for loops. The loop automatically calls the __next__() method of the iterator until a StopIteration exception is raised, indicating that there are no more elements.
+
+12.What is slicing?:
+    It allows you to create a new sequence containing only the elements within that specified range.
+13.What is mutable and immutable?
+    Mutable objects are those whose state  can be modified after they are created.
+	Immitable  Which can't able to change once we assign the value 
+	
+	
+	Mutable Objects:
+		Can be modified after creation.
+		Changes to the object affect its internal state directly.
+		Examples: lists, dictionaries, sets.
+		Immutable Objects:
+		Cannot be modified after creation.
+		Any operation that appears to modify the object actually creates a new object with the modified value.
+		Examples: integers, floats, strings, tuples.
+		
+		
+14.Python is single thread or multithread?
+   It support both , based on Use case .
+   
+   Single-Threaded:
+	By default, Python runs in a single-threaded manner, meaning that only one thread of execution is active at a given time.
+	In a single-threaded program, instructions are executed sequentially, one after the other.
+	
+   MutliThreading :
+   Python also supports multi-threaded programming through the threading module, which allows you to create and manage multiple threads of execution within a single process.
+   Threads in Python are managed by the underlying operating system's thread scheduler, which determines the order and timing of thread execution.
+
+15.What is GIL :
+	Global Interpreter Lock (GIL) 
+		A  lock allows only one thread to execute Python bytecode simultaneously.
+16.What you don’t like about python?
+     The GIL can limit Python's ability to effectively utilize multi-core processors, potentially hindering performance in multi-threaded applications.
+	 Python's dynamic typing can lead to errors that may only be caught at runtime, making it less suitable for large projects where strong typing could help catch errors earlier.
+	 Python's reliance on an interpreter can make deployment more complex compared to compiled languages, especially in environments where the interpreter is not readily available or where executable size is a concern.
+17.What is list Comprehension?:
+    It will  create list based on existing lists
+	Example :#
+	pairs = {}
+	pairs['a'] = 10
+	pairs['b'] = 50
+	pairs['c'] = 133
+	pairs['d'] = 200
+	if __name__ == '__main__':
+	new_dict = dict([ (k,v)  for k,v in pairs.items() if v > 100 ])
+		print(new_dict)#
+		
+	Another Example if we want to get power of two number ideally we use below function using for Loop :
+	range_100_values = range(100)
+	squares = []
+	for x in range_100_values:
+		squares.append(x**2)
+	List Comprehension : we can modified the same code by elimiating for loop 
+	range_100_values = range(100)
+    squares_list_comprehension = [x**2 for x in range_100_values]
+18.What are Dunder methods? Give examples:
+    Dunder methods are __main__ methods 
+	These methods provide a way to define specific behaviors for built-in operations or functionalities in Python classes.
+	
+	__init__: Constructor method called when an object is created.
+	__str__: String representation of an object.
+	__len__: Length of an object.
+	__iter__ and __next__: Iterating over objects (implementing iterators).
+19.What does _init_ method do?
+   __init__: Constructor method called when an object is created.
+   class MyClass:
+    def __init__(self, x):
+        self.x = x
+
+obj = MyClass(10)  # Creates an instance of MyClass with attribute x set to 10
+
+20.Difference between array and numpy library.
+Both "array" and "NumPy library" relate to the concept of storing and manipulating collections of elements, NumPy is a specialized library in Python that provides advanced functionality and optimizations for numerical computing, making it a popular choice for scientific computing, data analysis, and machine learning tasks.
+
+
+
+An array is a data structure that stores a collection of elements, typically of the same type, arranged in contiguous memory locations.
+
+NumPy is a powerful library in Python that adds support for large, multi-dimensional arrays and matrices, along with a collection of mathematical functions to operate on these arrays efficiently.
+NumPy provides a high-performance, memory-efficient implementation of arrays and operations on them, making it suitable for numerical computing and data manipulation tasks.
+
+

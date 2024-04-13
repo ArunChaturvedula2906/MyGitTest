@@ -1,0 +1,203 @@
+Hadoop
+1.Mention Hadoop distribution? Difference between CDH and CDP
+    Cloudera Distribution for Hadoop is for CDH  and Cloudera Data Platform is for CDP , are both offerings from Cloudera, but they differ in their architecture, deployment models, and supported features.
+	
+	examples : CDH is used for On-premises system and where as CDH is for Hybrid mode where we can integrate both for On-premises and CLoud.
+	
+	
+	Architecture : CDH is a traditional Hadoop distribution that typically consists of various Apache Hadoop ecosystem projects (such as HDFS, MapReduce, YARN, Hive, HBase, etc.). It's designed to be deployed on-premises 
+	Where as CDP is a modern data platform that extends beyond Hadoop to include other big data and analytics technologies, such as Apache Spark and Apache Kafka. It's built on a cloud-native architecture and is designed for hybrid and multi-cloud deployments.
+	
+	Deployment Mode : CDH is mainly foscued on-premises and it often installed and managed by organizations itself
+	CDP supports a variety of deployment models, including on-premises, public cloud, and hybrid cloud deployments.
+	
+2.Explain Hadoop Architecture:
+	Hadoop is a distributed computing framework designed to process large datasets across clusters of commodity hardware.
+	
+    Hadoop Architecture is basically an master and slave Architecture which consists of master node and data node .In Master node we have configuration like metadata information ,node information (like health check) from Data Node.
+	HDFS is the primary storage system used by Hadoop to store large volumes of data across distributed nodes
+	HDFS divides large files into smaller blocks (typically 128 MB) and replicates them across multiple DataNodes for fault tolerance and data locality.
+	MapReduce:
+	MapReduce is a programming model and processing engine used for distributed data processing in Hadoop.
+	It consists of two main phases: the Map phase, where data is processed in parallel across the cluster, and the Reduce phase, where intermediate results are aggregated to produce final output.
+	MapReduce jobs are submitted to YARN, which allocates resources and schedules tasks across the cluster.
+	YARN : 
+	YARN is the resource management layer of Hadoop that manages and allocates cluster resources to various applications.
+	It consists of ResourceManager (master) and NodeManagers (slaves).
+	ResourceManager oversees resource allocation by negotiating resources with NodeManagers and monitoring job execution.
+	NodeManagers manage resources on individual cluster nodes, executing and monitoring tasks assigned by the ResourceManager.
+	
+	Hadoop Compoents suck as Hive ,pig ,Hbase ,Spark , Sqoop ,flume and Kafka 
+	
+	
+3.Configuration files used during hadoop installation
+   core-site.xml, hdfs-site.xml, mapred-site.xml , yarn-site.xml , hadoop-env.sh,mapred-env.sh,workers and masters
+   
+   core-site.xml : 
+   Configured  core setting such as default file systems , Hadoop run time env and I/O seetings 
+   hdfs-site.xml: Configured mainly for Hadoop file systems such as block replicaion , block size and data node.
+   
+   mapred-site.xml:
+		Configures settings for MapReduce framework, such as job tracker details, task allocation, and resource management
+		
+    yarn-site.xml: Configures settings for Yet Another Resource Negotiator (YARN), such as resource allocation, node manager details, and scheduler configurations.
+
+    hadoop-env.sh: Configures environment variables used by various Hadoop scripts, such as JAVA_HOME and HADOOP_OPTS.
+
+    yarn-env.sh: Similar to hadoop-env.sh, but specific to YARN environment configurations.
+
+    mapred-env.sh: Environment settings for the MapReduce framework.
+
+    hdfs-site.xml: Configuration for the HDFS, including replication factor, block size, and checkpointing.
+
+    workers: Lists the hostnames or IP addresses of machines that will run DataNodes and NodeManagers.
+
+    masters: Specifies the hostname of the machine that will run the NameNode and ResourceManager.
+
+
+4.Difference between Hadoop fs and hdfs dfs
+   Functionally these two we dont have any difference only the way we write it make difference like below example :
+   
+   hadoop fs -ls pathname 
+   hdfs dfs -ls pathname 
+5.Difference between Hadoop 2 and Hadoop 3:
+    Java Version Change  in hadoop 2 we will use only Java 7 , where as Hadoop 3 we will use Jave 8 
+    Erasure Coding in Hadoop : To reduce the overhead for replication of data.Erasure coding is used for handling fault tolerance 
+								in hadoop 3 , where as in hadoop 2 we dont have .
+	Hadoop 3 supports multiple NameNodes to provide better fault Tolerance.
+	Comptiable System : IN Hadoop 3 it will all the File Systems including Azure Data Lake Services ,
+						Where as in hadoop 2 we will have only limited FIles System such as S3 , blob services.
+	NameNodeRecovery : IN Hadoop 3 no manual recovery if its failed , where as it required in hadoop 2 					
+	
+	
+6.What is replication factor ? why its important
+   Replication factor means it is an copy of data, Means when ever we are working in disturbuted computating system if data is lost,
+   how to recovery it. For this reason hadoop Framework system introduce system called Replication factor , where we will have copy 
+   of Data. So , that we can have copy of data , if anything data loss is happend in the cluster level the another copy will help you
+   to recover it. And in Hadoop we have default replication factor as 3 , means we will have 3 copies of data which is stored in HDFS
+   files System.
+   why is important , beacuse of fault tolerance ,Data Availability ,Data Durablity ,Performance and Load Balancing
+   
+7.What if Datanode fails?
+   If for example Data Node fails , Data Loss can happend (Because Data Node is where Actual Data present in HDFS).
+   How to Overcome:
+				We have Default replicaion factor 3 and hence data copy will have 3 , and its sits into different location .
+   How location defined :
+				Hadoop’s default strategy is to place the first replica on the same node as the client.
+				The second replica is placed on a different rack from the first (off-rack), chosen at random.
+				The third replica is placed on the same rack as the second, but on a different node chosen at random
+   How we DataNode to communicate that whether its failed ,and how can track it .
+     Datanode will continuously sends heartbeat signals to namenode for every 3 seconds by default. If Namenode does not receive a heartbeat from datanode for 10 minutes (by default), the Namenode will consider the datanode to be dead. Namenode will now check the data available in that dead datanode and initiates the data replication. So that the replication strategy will be satisfied. Even if the one datanode goes down, the namenode will provide the address for its replica, so that there wont be any interruption.
+     
+8.What if Namenode fails?:
+    NameNode : Namenode is the master node which stores metadata like filename, number of blocks, number of replicas, location of blocks and block ID
+	What if its Fails:
+	In Hadoop 1x,
+	Namenode is the single point of failure. Even if the metadata is persisted in the disk, the time taken to recover it is very high (i.e. 30 minutes approximately ). The addition of High Availability in Hadoop 2 solves this problem.
+	
+	In Hadoop 2 ,
+	there will be two namenodes with active and passive configuration. At a given point of time only one namenode will be active and if the active namenode goes down then the passive namenode will take the responsibility of serving clients without any interruption.
+	These Active and passive NameNode will sync each other and must have same Metadata .
+	
+	One important point we need to understand here is fencing . Fencing is process where only one active namenode will works in 
+	one time ,fencing can be done using two ways, One way is by using Quorum Journal Manager (QJM) for storing the editlogs, where only the active namenode can write the editlogs to the Journal Node and passive or standby node can only read the editlogs. Other way is using the shared storage where the active node applies the edit logs information and passive node will constantly look for the changes. When a namenode fails it is killed from accessing this shared storage device. This way we ensure that only one namenode is active.
+9.Why is block size 128 MB ? what if I increase or decrease the block size
+	basically when the block size is less, it will result in many splits, which will generate too many tasks beyond the capacity of the cluster. And if the block size is more, it will result in under-utilization of cluster, and there will be less parallel processing. Therefore, ideal 128 Mb block size is often recommended.
+	Yes , we can increased ?:
+	The cluster would be underutilized because of large block size there would be fewer splits and in turn would be fewer map tasks which will slow down the job.Large block size would decrease parallelism.
+	Yes , we can deceased ?:
+	Small block size also is a problem for Namenode since it keeps metadata of all blocks and it keeps metadata in memory. Due to small block size Namenode can run out of memory.
+	Too small block size would result in more number of unnecessary splits, which would result in more number of tasks which might be beyond the capacity of the cluster.
+10.Small file problem#
+  In general Hadoop handles big files very well, but when the files are small, it just passes each small file to a map () function, which is not very efficient because it will create a large number of mappers. For example, the 1,000’s files of size (2 to 3 MB) will need 1,000 mappers which very inefficient. Having too many small files can therefore be problematic in Hadoop. To solve this problem, we should merge many of these small files into one and then process them. And note that Hadoop is mainly designed for batch-processing a large volume of data rather than processing many small files. The main purpose of solving the small files problem is to speed up the execution of a Hadoop program by combining small files into bigger files. Solving the small files problem will shrink the number of map() functions executed and hence will improve the overall performance of a Hadoop job.
+11.What is Rack awareness?
+		Wonder how does the NameNode decide which DataNode to select?????
+		HDFS comprises replicas of each block over multiple DataNodes based on the replication factor. To get maximum efficiency, NameNode selects DataNodes which is in the same rack or in a rack closer to itself.
+
+		In short, Rack Awareness is a concept of selecting the DataNodes closer to NameNode for reading/write operations to maximize performance by reducing network traffic.
+		
+		What is Rack ?
+		   Hadoop cluster is collection of Racks and Rack is collection of DataNodes that are close to each other and are connected to the same network switch. Network bandwidth between any 2 DataNodes within the same rack is greater than the 2 DataNodes in different racks.
+		   
+		With the help of Rack we can achieve HA , Fault Tolerance, Reduce Network Traffic -Name Node level and Low Latency read/Write Operator
+12.What is SPOF ? how its resolved ?
+	An SPOF is a single part of a system, which, if it fails, takes down the entire system.
+	In Hadoop, the NameNode is a SPOF. DNS may also be SPOF, unless you have failover.
+13.Explain zookeeper?
+    ZooKeeper is a centralized service for maintaining configuration information, naming, providing distributed synchronization, and providing group services.
+	Zookeeper is a cluster of its own, with 3 or 5 nodes, and does not manage a cluster outside of it, it just like a database superficially, it allows writes and reads, in a consistent fashion.
+
+	YARN has a HA variant (a highly available setup). In that HA setup, Automatic failover (though embedded leader election) is set up via Zookeeper.
+
+	How does this failover works automatically over zookeeper generically? (meaning, nothing yarn specific here, imagine any daemon with failover capability over a set of hosts): You can simply imagine that in zookeeper, there is a piece of information about "what yarn nodes are there"? and there could be 0 (nasty, yarn is down), 1 (ok, we got yarn up), or 2 (great, first node from this list is the current yarn master, while the second one is a standby failover yarn node, currently waiting and just copying updates from the master so he is ready if the times come. notice that there is an order here, which can be lexicographical, sorting some attribute of the hosts or host names themselves). This is just an example how leader election would work: the leader is the first element in a sorted list of nodes "competing" to be a leader of the pack.
+14.Difference between -put and -CopyFromLocal?
+   hadoop -put ideal it will cut the data source loaction and will be pasted in Target Location.(SOurce and Target should either local or HDFS location)
+   Hadoop -CopyFromLocal is source file will our local file , like unix local system and Target location should as mandatory 
+   hadoop location.
+15.What is erasure coding?
+    Erasure coding is a way by which we can reduce the storage overhead by approximately 50% compared to the replication along with maintaining the same durable guarantees
+16.What is speculative execution?:
+    In Hadoop, launching duplicate tasks helps improve job completion times by ensuring that slow-running tasks don't hold back the overall progress of the job.
+	When a job is submitted to a Hadoop cluster for processing, it is divided into multiple tasks, each of which is assigned to run on different nodes in the cluster.
+	Hadoop monitors the progress of these tasks as they run. If a task is progressing slower than expected (e.g., due to a slow disk or network), it may cause the overall job completion time to be delayed.
+	
+	To address this issue, Hadoop employs speculative execution. When Hadoop detects that a task is running slower than its counterparts, it launches a duplicate or speculative task on another node in the cluster.
+	
+	Both the original task and the speculative task continue to run in parallel. Whichever task completes first, whether it's the original or the speculative task, is considered valid, and the other task is terminated.
+	
+	By running duplicate tasks in parallel, Hadoop increases the chances of completing the job sooner, as the speculative task may finish faster than the original task if it's not affected by the same performance issues.
+	
+	
+17.Explain Yarn Architecture:
+		YARN (Yet Another Resource Negotiator) is a critical component of the Hadoop ecosystem. It functions as the cluster resource management layer, responsible for managing and allocating resources such as CPU, memory, and storage for distributed applications running on a Hadoop cluster.
+		The three important elements of the YARN architecture are:
+		Resource Manager (RM),Application Master (AM) and Node Managers (NM)
+		Resource Manager (RM):
+				The ResourceManager will runs on the master node that is responsible for managing and allocating resources such as CPU, memory, and disk across the Hadoop cluster based on the needs of various jobs.
+				Such as Cluster resource tracking , Cluster health monitoring,Cluster resource allocation,Job scheduling
+				Application master management
+						The ResourceManager has two main components:
+						Scheduler: The scheduler in YARN is responsible for scheduling and mediating available resources in the cluster among submitted applications.
+						Such as FIFO Scheduler , Capacity Scheduler  and Fair Scheduler
+						Applications Manager: It monitors the health of the Application Master in the cluster and manages failover in case of failures.
+						The ApplicationManager is an interface that maintains a list of applications that are submitted, running, or completed.
+				
+				Application Master (AM)
+				The ApplicationMaster is a process that runs the main function/entry point of an application, such as the Spark driver.
+ 
+                Node Manager (NM)
+				NodeManagers are Java processes that run on slave/worker nodes in a Hadoop cluster. They are responsible for managing containers and resources on each worker node, providing a secure runtime environment for applications, and allowing for efficient and flexible resource allocation. #
+				
+				How Applications run on YARN????
+				Step 1: A client submits a job using commands in to the YARN Resource Manager.
+				Step 2: The job enters a scheduler queue in the ResourceManager, waiting to be executed.
+				Step 3: When it is time for the job to be executed, the ResourceManager finds a NodeManager capable of launching a container to run the ApplicationMaster.
+				Step 4: The ApplicationMaster launches the Driver Program (the entry point of the program that creates it).
+				Step 5: The ApplicationMaster calculates the required resources (CPU, RAM, number of executors) for the job and sends a request to the Resource Manager to launch the executors.
+				       > The ApplicationMaster communicates with the NameNode to determine the file (block) locations within the cluster using the HDFS protocol.
+				Step 6: The Driver Program assigns tasks to the  containers and keeps track of the task status.
+				Step 7: The  containers execute the tasks and return the results to the Driver Program. The Driver Program aggregates the results and produces the final output.
+18.How does ApplicationManager and Application Master  differ?
+
+		ApplicationManager is a global component of the ResourceManager responsible for managing the lifecycle of applications in the YARN cluster, while the ApplicationMaster is a per-application component responsible for managing the execution of a specific application within the cluster. The ApplicationManager allocates resources and monitors applications at a high level, while the ApplicationMaster manages the detailed execution logic and resource utilization of individual applications.
+19.Explain Mapreduce working?
+
+    MapReduce works by dividing a large dataset into smaller chunks, processing each chunk in parallel using map tasks, shuffling and sorting the intermediate results, and then aggregating and summarizing the results using reduce tasks. This approach allows for efficient and scalable processing of large-scale data processing tasks in distributed environments like Hadoop.
+	
+	
+20.How many mappers are created for 1 GB file?
+
+    Given that the file size is 1 GB and the block size is 128 MB:
+	The file will be divided into approximately 1GB/128MB = 8 blocks 
+	Each block will be processed by a separate mapper. and approximately 8 mappers to be created
+21.How many reducers are created for 1 GB file?
+
+   Given a 1 GB file, the number of reducers may initially be set to one by default. However, depending on the specific job configuration, workload characteristics, and cluster resources, the number of reducers may be adjusted dynamically by Hadoop to optimize job execution.
+22.What is combiner?
+	The Combiner is also known as “mini-reduce” process which operates only on data generated by one machine. It reduces the data on machine level so that less data could be transferred to Reducers.
+	A combiner is a code that performs the same action as that of the reducer but to the output of the mapper before it gets to the sort and shuffle phase.
+	Combiners work one per node means it does not depend on the number of mappers. It is not necessary that you have defined a Combiner and it will execute necessarily. A combiner can get executed one or more than once but it will not affect the overall output as the reduce action is performed lately before writing data to HDFS.
+23.What is partitioner?
+		The Partitioner in MapReduce controls the partitioning of the key of the intermediate mapper output.By hash function, key (or a subset of the key) is used to derive the partition. According to the key-value each mapper output is partitioned and records having the same key value go into the same partition (within each mapper), and then each partition is sent to a reducer. 
+
+   

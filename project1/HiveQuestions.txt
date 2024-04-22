@@ -1,0 +1,116 @@
+
+#### HIVE Questions #######
+
+
+1.	Difference between Data warehouse and database?
+      database : while databases are focused on transactional processing and operational tasks Example OLTP
+	  data warehouses: are specialized systems designed for analytical processing and decision support, handling large volumes of historical data and supporting complex queries to extract insights from the data. Example :OLAP 
+	  
+2.	Difference between Data warehouse and data mart?
+        DW: Centralize data, become single source of truth across business
+		DM: Provide easy access to data for a department or specific line of business
+		 A data warehouses providing a comprehensive view of organizational data and data marts offering specialized views tailored to specific departments or functional areas.
+		 Scope:
+		 
+			A data warehouse is a centralized repository that stores data from multiple sources across an entire organization. It typically contains historical data and integrates data from various departments or systems within an organization.
+			A data mart is a subset of a data warehouse, focusing on a specific functional area or department within an organization.Data marts are usually tailored to meet the specific needs of a particular group of users, such as sales, marketing, or finance.
+		Architecture:
+			Data warehouses often employ a top-down approach, where data from multiple sources is integrated, cleaned, and transformed before being stored in a centralized repository. They typically use a dimensional modeling approach, such as star or snowflake schema, to organize data for easy querying and analysis.
+			Data marts can be built using a top-down, bottom-up, or hybrid approach. They can be created directly from the data warehouse by extracting and filtering relevant data, or they can be developed independently using data from specific source systems. Data marts may use dimensional modeling or other schema designs depending on their specific requirements.
+		Usage:
+			Data warehouses serve as a comprehensive and centralized source of data for decision-making at an enterprise level.
+			 Data marts are designed to serve the analytical needs of specific departments or business units within an organization.
+			 
+3.	Difference between OLTP vs OLAP.
+     OLAP:	Handles a large number of small transactions
+			Simple standardized queries
+			Based on INSERT, UPDATE, DELETE commands
+			Milliseconds
+			Transactions
+			Short, fast updates initiated by user
+			Regular backups required to ensure business continuity and meet legal and governance requirements
+			Lists day-to-day business transactions
+			Normalized databases for efficiency
+	 OLTP : Handles large volumes of data with complex queries.
+			Complex queries
+			Based on SELECT commands to aggregate data for reporting
+			Seconds, minutes, or hours depending on the amount of data to process
+			Aggregated data from transactions
+			Data periodically refreshed with scheduled, long-running batch jobs
+			Lost data can be reloaded from OLTP database as needed in lieu of regular backups	
+			Multi-dimensional view of enterprise dat
+			Denormalized databases for analysis
+
+4.	Why hive metadata is stored in SQL?
+	  The storage system for the metastore should be optimized for online transactions with random accesses and updates. A file system like HDFS is not suited since it is optimized for sequential scans and not for random access. So, the metastore uses either a traditional relational database (like MySQL, Oracle) or file system (like local, NFS, AFS) and not HDFS. As a result, HiveQL statements which only access metadata objects are executed with very low latency.
+5.	Which SQL is the default database for hive?
+	Derby 
+6.	What is managed table?
+	A managed table refers to a type of table where Hive has control over the data and metadata associated with it.
+	
+	When you create a managed table in Hive, Hive manages both the data files and the metadata for the table. This means that when you drop a managed table, Hive will delete both the metadata entry for the table as well as the data files associated with it.
+	
+	Use Case :
+	Managed tables are often preferred for scenarios where users want Hive to have full control over both the data and metadata, and where the data is primarily managed by Hive itself
+    
+7.	What is external table?:
+	An external table in Hive is a type of table where Hive manages only the metadata, while the data files remain stored externally in a specified location.
+	When you create an external table in Hive, you provide a location that points to where the data files are stored, typically in HDFS,
+	or CLoud Data Storage services.
+8.	When do we use external table?  
+	 They are often used in scenarios where data needs to be shared across multiple systems, integrated with external processes, or retained independently of Hive's lifecycle.
+
+9.	Diff between managed and external table?
+     Managed table and external table refered to type of a table , when we created in hive .But Major difference is when we drop table ,
+	 for example in Managed table , if we drop the table both metadata and location pointed to that table will be dropped .
+	 where as External , only metadata will be dropped and actually data will not be dropped.
+10.	What happens if you don’t provide location to external table?
+	creating an external table in Hive without providing a location for the data files effectively results in an empty table with metadata defined in the Hive metastore but no actual data stored anywhere. It's essential to specify a valid location when creating external tables to ensure that data can be properly stored and accessed.
+11.	Performance optimization in hive?:
+	Optimizing Hive performance involves several factors, from data design to query structures, to configurations. 
+	 Such as Partitioning,Bucketing,Indexing,Vectorization,Cost-Based Optimization (CBO),Compression and Execution Engines.
+	 Partitioning:
+			Partitioning involves segregating tables into smaller, more manageable fragments based on a specific column or a set of columns, referred to as partition keys. This technique helps expedite query execution by restricting the amount of data scanned.
+	 Bucketing:
+			Bucketing represents another approach where data is segmented into buckets based on a column’s hash value. These buckets are stored as separate files within the Hadoop Distributed File System (HDFS). Bucketing enables efficient querying of sizeable datasets, especially for operations such as JOINs and aggregations.
+	 Indexing:
+			Indexing is a technique that allows for the creation of an auxiliary table from a specified table column, facilitating quicker query processing. This strategy proves particularly beneficial for columns frequently referenced in WHERE clauses.
+			
+	 Vectorization:
+			Vectorization in Hive allows for more efficient use of CPU resources by processing a batch of rows together instead of one row at a time. When you enable vectorization, Hive uses a special format to store data in memory that is more conducive to modern CPUs’ pipelined architecture.
+	 Cost-Based Optimization (CBO):
+			CBO in Hive generates the most efficient plan for executing a query based on the statistical information about tables and partitions. When you enable CBO with hive.cbo.enable=true automatic statistics gathering with hive.stats.autogather=true, Hive starts collecting statistics like the number of rows, data size, and data distribution for tables and partitions.
+	 Compression:
+			Compression helps reduce the storage space of data in HDFS, leading to faster data reading and writing operations. Hive supports various compression codecs, including Gzip, Snappy, and LZO.
+			
+	  Execution Engines:
+			The execution engine is the component of Hive responsible for executing queries. Two widely used execution engines are MapReduce and Apache Tez.
+			MR:
+	        When you set the execution engine to MapReduce using SET hive.execution.engine=mr;, Hive translates queries into a series of MapReduce jobs to execute. Each MapReduce job reads data from the disk, processes it, and writes the result back to the disk. This makes it robust but potentially slow for complex tasks due to the time spent reading and writing data to disk.
+			Tez:
+			On the other hand, when you set the execution engine to Apache Tez using SET hive.execution.engine=tez;, Hive translates queries into a Tez job. Unlike MapReduce, Tez can process data in memory without writing interim results to disk, which makes it much faster for complex tasks that involve multiple stages.
+12.	Explain partition table. Give example :
+     Suppose we have a sales table with columns: sale_id, product_id, customer_id, region, date, quantity.
+
+     Partitioning: We could partition this table on date or region, depending on our query patterns. For example, if we frequently run queries for specific dates or regions, partitioning on these columns would be beneficial.
+	 CREATE TABLE sales_partitioned (sale_id INT, product_id INT, customer_id INT, quantity INT)
+	 PARTITIONED BY (region STRING, date STRING);
+	 
+	 After partitioning the sales table by region and date, Hive creates a unique directory for each combination of region and date in the HDFS. This means that when you run a query specifying a particular region and date, Hive only scans the data within the corresponding partition directory, not the entire dataset. This significantly reduces the amount of data that needs to be processed, thus improving query performance.
+	 
+	 
+13.	Explain bucket table. Give example:
+	Bucketing: We can also create buckets product_id to facilitate. efficient join operations with other tables. For instance, suppose we decide to have 50 buckets.
+	
+	CREATE TABLE sales_bucketed (sale_id INT, customer_id INT, region STRING, date STRING, quantity INT)
+    CLUSTERED BY (product_id) INTO 50 BUCKETS;
+	
+	In the example, the table is bucketed on, which means the values product_id are hashed, and based on these hash values, records are distributed across a predefined number of buckets. Each bucket corresponds to a separate file in an HDFS directory.
+	For example, if you define 50 buckets for product_id, Hive will create 50 files, each corresponding to a bucket. When a new record is inserted, the hash value the product_id determines the bucket (and thus the file) where the record will be stored.
+
+
+14.	Diff between partition and bucketed table.
+		It is super simple to understand what partitioning and bucketing are. Both are used to enhance query execution time/query optimization. If a column has low cardinality (a smaller number of distinct values in the column) partitioning is used. On the other, if a column has extremely high cardinality (a greater number of distinct values in the column) bucketing is preferred.
+15.	How is data distributed among buckets? 
+		In Hive, data distribution among buckets is determined by a hashing function applied to one or more columns of a table.
+		For example, if you have 10 buckets and the hash value is 27, the row would be assigned to bucket 7 (27 mod 10 = 7).
